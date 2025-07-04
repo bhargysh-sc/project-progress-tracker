@@ -36,13 +36,13 @@ const milestoneBlue = "#2196f3";
 return (
     <div style={{ maxWidth: 600, margin: "2rem auto", fontFamily: "'Inter', 'Segoe UI', 'Roboto', 'sans-serif'" }}>
       <h1>{config.name || "Project Progress Tracker"}</h1>
-      <div style={{ marginBottom: 24 }}>
+      <ProgressBar percent={percent} />
+      <div>
         <span style={{ fontSize: "0.95em", color: "#555" }}>
           Development Start Date: 10-06-2025
         </span>
       </div>
-      <ProgressBar percent={percent} />
-      <div style={{ margin: '18px 0 28px 0', padding: '12px', background: '#f0f4f8', borderRadius: 8, color: '#333', fontSize: '1.08em', display: 'inline-block' }}>
+      <div style={{ margin: '10px 0 10px 0', padding: '12px', background: '#f0f4f8', borderRadius: 8, color: '#333', fontSize: '1.08em', display: 'inline-block' }}>
         <span>
           Estimated time for completion:&nbsp;
           <b>{config.adjustedBestCaseDays}</b>–<b>{config.adjustedWorstCaseDays}</b> days (best–worst)
