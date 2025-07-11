@@ -31,6 +31,26 @@ function App() {
 
   const percent = getPercent(config.completedPoints, config.totalPoints);
 
+  function calculateMilestoneETC(milestone, projectConfig) {
+    if (milestone.completedPoints >= milestone.totalPoints) {
+      return "Complete";
+    }
+    
+    const remainingPoints = milestone.totalPoints - milestone.completedPoints;
+    const overallVelocity = projectConfig.completedPoints / (projectConfig.totalPoints || 1);
+    
+    if (overallVelocity === 0) {
+      return `${projectConfig.adjustedBestCaseDays}-${projectConfig.adjustedWorstCaseDays} days`;
+    }
+    
+    const totalProjectDays = projectConfig.adjustedWorstCaseDays;
+    const dailyPointsRate = (projectConfig.totalPoints / totalProjectDays) * 0.8; // Add buffer by reducing daily rate
+    
+    const estimatedDays = Math.round(remainingPoints / dailyPointsRate);
+    
+    return `${estimatedDays} day${estimatedDays !== 1 ? 's' : ''}`;
+  }
+
 const milestoneBlue = "#2196f3";
 
 return (
@@ -44,7 +64,7 @@ return (
       </div>
       <div style={{ margin: '10px 0 10px 0', padding: '12px', background: '#f0f4f8', borderRadius: 8, color: '#333', fontSize: '1.08em', display: 'inline-block' }}>
         <span>
-          Estimated time for completion:&nbsp;
+          Engineering effort:&nbsp;
           <b>{config.adjustedBestCaseDays}</b>–<b>{config.adjustedWorstCaseDays}</b> days (best–worst)
           <br />
           <span style={{ fontSize: '0.98em', color: '#555' }}>
@@ -70,8 +90,24 @@ return (
                 percent={getPercent(m.completedPoints, m.totalPoints)}
                 color={milestoneBlue}
                 width={getWidth(m.totalPoints)}
+                eta={calculateMilestoneETC(m, config)}
               />
             ))}
+            <div style={{ fontSize: '1em', color: '#666', marginTop: '10px', fontWeight: 'bold' }}>
+              🏁 Current project ETC: {(() => {
+                const remainingPoints = config.totalPoints - config.completedPoints;
+                if (remainingPoints <= 0) return "Complete";
+                
+                const dailyPointsRate = (config.totalPoints / config.adjustedWorstCaseDays) * 0.8;
+                const estimatedDays = Math.round(remainingPoints / dailyPointsRate);
+                const estimatedWeeks = Math.round(estimatedDays / 5); // Business weeks
+                
+                return `${estimatedWeeks} week${estimatedWeeks !== 1 ? 's' : ''}`;
+              })()}
+            </div>
+            <div style={{ fontSize: '0.85em', color: '#666', marginTop: '10px', fontStyle: 'italic' }}>
+              * ETC = Estimated time to complete in business days
+            </div>
           </>
         );
       })()}
