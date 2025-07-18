@@ -1,6 +1,6 @@
 import React from "react";
 
-function MilestoneBar({ label, percent, color, width = 400, eta }) {
+function MilestoneBar({ label, percent, color, width = 400, eta, isReleaseable }) {
   const isComplete = percent === 100;
   const barColor = isComplete ? '#4caf50' : color;
   return (
@@ -38,6 +38,21 @@ function MilestoneBar({ label, percent, color, width = 400, eta }) {
           }}>🎉</span>
         )}
       </div>
+      {isReleaseable && (
+        <div style={{
+          marginTop: '6px',
+          display: 'inline-block',
+          backgroundColor: '#e8f5e9',
+          color: '#1b5e20',
+          padding: '4px 8px',
+          borderRadius: '4px',
+          fontSize: '0.85em',
+          fontWeight: 500,
+          borderLeft: '3px solid #2e7d32'
+        }}>
+          <span role="img" aria-label="rocket">🚀</span> Releaseable
+        </div>
+      )}
     </div>
   );
 }

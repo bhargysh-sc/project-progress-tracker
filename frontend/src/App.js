@@ -91,6 +91,7 @@ return (
                 color={milestoneBlue}
                 width={getWidth(m.totalPoints)}
                 eta={calculateMilestoneETC(m, config)}
+                isReleaseable={i === 3}
               />
             ))}
             <div style={{ fontSize: '1em', color: '#666', marginTop: '10px', fontWeight: 'bold' }}>
