@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ProgressBar from "./ProgressBar";
 import MilestoneBar from "./MilestoneBar";
+import ReleaseableETA from "./ReleaseableETA";
 
 function App() {
   const [config, setConfig] = useState(null);
@@ -13,7 +14,6 @@ function App() {
       });
   }, []);
 
-  // Add Google Font to document head
   useEffect(() => {
     const link = document.createElement('link');
     link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap';
@@ -30,26 +30,6 @@ function App() {
   }
 
   const percent = getPercent(config.completedPoints, config.totalPoints);
-
-  function calculateMilestoneETC(milestone, projectConfig) {
-    if (milestone.completedPoints >= milestone.totalPoints) {
-      return "Complete";
-    }
-    
-    const remainingPoints = milestone.totalPoints - milestone.completedPoints;
-    const overallVelocity = projectConfig.completedPoints / (projectConfig.totalPoints || 1);
-    
-    if (overallVelocity === 0) {
-      return `${projectConfig.adjustedBestCaseDays}-${projectConfig.adjustedWorstCaseDays} days`;
-    }
-    
-    const totalProjectDays = projectConfig.adjustedWorstCaseDays;
-    const dailyPointsRate = (projectConfig.totalPoints / totalProjectDays) * 0.8; // Add buffer by reducing daily rate
-    
-    const estimatedDays = Math.round(remainingPoints / dailyPointsRate);
-    
-    return `${estimatedDays} day${estimatedDays !== 1 ? 's' : ''}`;
-  }
 
 const milestoneBlue = "#2196f3";
 
@@ -81,6 +61,7 @@ return (
         function getWidth(points) {
           return Math.round(minWidth + ((points / maxPoints) * (maxWidth - minWidth)));
         }
+        const releaseableIndex = config.releaseableAfterMilestone !== undefined ? parseInt(config.releaseableAfterMilestone) - 1 : 0;
         return (
           <>
             {config.milestones.map((m, i) => (
@@ -90,25 +71,17 @@ return (
                 percent={getPercent(m.completedPoints, m.totalPoints)}
                 color={milestoneBlue}
                 width={getWidth(m.totalPoints)}
-                eta={calculateMilestoneETC(m, config)}
-                isReleaseable={i === 3}
+                milestone={m}
+                config={config}
+                milestoneIndex={i}
+                isReleaseable={i === releaseableIndex}
               />
             ))}
-            <div style={{ fontSize: '1em', color: '#666', marginTop: '10px', fontWeight: 'bold' }}>
-              🏁 Current project ETC: {(() => {
-                const remainingPoints = config.totalPoints - config.completedPoints;
-                if (remainingPoints <= 0) return "Complete";
-                
-                const dailyPointsRate = (config.totalPoints / config.adjustedWorstCaseDays) * 0.8;
-                const estimatedDays = Math.round(remainingPoints / dailyPointsRate);
-                const estimatedWeeks = Math.round(estimatedDays / 5); // Business weeks
-                
-                return `${estimatedWeeks} week${estimatedWeeks !== 1 ? 's' : ''}`;
-              })()}
-            </div>
-            <div style={{ fontSize: '0.85em', color: '#666', marginTop: '10px', fontStyle: 'italic' }}>
-              * ETC = Estimated time to complete in business days
-            </div>
+            <ReleaseableETA 
+              milestones={config.milestones} 
+              releaseableIndex={releaseableIndex} 
+              config={config} 
+            />
           </>
         );
       })()}

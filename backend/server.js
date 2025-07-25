@@ -3,17 +3,15 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
-app.use(cors()); // allow requests from React dev server
+app.use(cors());
 
 app.get('/config', (req, res) => {
-  // Helper to strip quotes
   function stripQuotes(val) {
     if (!val) return '';
     if (val.startsWith('"') && val.endsWith('"')) return val.slice(1, -1);
     return val;
   }
 
-  // Dynamically collect milestones
   const milestones = [];
   let i = 1;
   while (true) {
@@ -30,31 +28,24 @@ app.get('/config', (req, res) => {
     i++;
   }
 
-  // Calculate total and completed points from milestones
   const totalPoints = milestones.reduce((sum, m) => sum + m.totalPoints, 0);
   const completedPoints = milestones.reduce((sum, m) => sum + m.completedPoints, 0);
 
-  // Remove surrounding quotes if present
   let projectName = process.env.name || '';
   if (projectName.startsWith('"') && projectName.endsWith('"')) {
     projectName = projectName.slice(1, -1);
   }
 
-  // Estimate project duration
   const bestDays = Number(process.env.bestDays);
   const worstDays = Number(process.env.worstDays);
   const speedup = Number(process.env.speedup);
-  // Fraction completed
   const fractionComplete = totalPoints > 0 ? completedPoints / totalPoints : 0;
-  // Remaining fraction
   const fractionRemaining = 1 - fractionComplete;
-  // Days remaining (best/worst/adjusted)
   const bestCaseDays = Math.ceil(bestDays * fractionRemaining);
   const worstCaseDays = Math.ceil(worstDays * fractionRemaining);
   const adjustedBestCaseDays = Math.ceil(bestCaseDays / speedup);
   const adjustedWorstCaseDays = Math.ceil(worstCaseDays / speedup);
 
-  // Business weeks (5 business days per week)
   const bestCaseWeeks = Math.ceil(bestCaseDays / 5);
   const worstCaseWeeks = Math.ceil(worstCaseDays / 5);
   const adjustedBestCaseWeeks = Math.ceil(adjustedBestCaseDays / 5);
@@ -76,6 +67,8 @@ app.get('/config', (req, res) => {
     adjustedWorstCaseDays,
     adjustedBestCaseWeeks,
     adjustedWorstCaseWeeks,
+    releaseableAfterMilestone: Number(process.env.releaseableAfterMilestone) || 4,
+    releaseDate: stripQuotes(process.env.releaseDate),
     milestones
   });
 });
