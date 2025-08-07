@@ -36,6 +36,16 @@ const milestoneBlue = "#2196f3";
 return (
     <div style={{ maxWidth: 600, margin: "2rem auto", fontFamily: "'Inter', 'Segoe UI', 'Roboto', 'sans-serif'" }}>
       <h1>{config.name || "Project Progress Tracker"}</h1>
+      {(() => {
+        const releaseableIndex = config.releaseableAfterMilestone !== undefined ? parseInt(config.releaseableAfterMilestone) - 1 : 0;
+        return (
+          <ReleaseableETA 
+            milestones={config.milestones} 
+            releaseableIndex={releaseableIndex} 
+            config={config} 
+          />
+        );
+      })()}
       <ProgressBar percent={percent} />
       <div>
         <span style={{ fontSize: "0.95em", color: "#555" }}>
@@ -61,7 +71,6 @@ return (
         function getWidth(points) {
           return Math.round(minWidth + ((points / maxPoints) * (maxWidth - minWidth)));
         }
-        const releaseableIndex = config.releaseableAfterMilestone !== undefined ? parseInt(config.releaseableAfterMilestone) - 1 : 0;
         return (
           <>
             {config.milestones.map((m, i) => (
@@ -73,15 +82,9 @@ return (
                 width={getWidth(m.totalPoints)}
                 milestone={m}
                 config={config}
-                milestoneIndex={i}
-                isReleaseable={i === releaseableIndex}
+                isReleaseable={i === (config.releaseableAfterMilestone !== undefined ? parseInt(config.releaseableAfterMilestone) - 1 : 0)}
               />
             ))}
-            <ReleaseableETA 
-              milestones={config.milestones} 
-              releaseableIndex={releaseableIndex} 
-              config={config} 
-            />
           </>
         );
       })()}
